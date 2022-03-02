@@ -1,4 +1,10 @@
 .DS_Store
 backup
-db
-conf
+mysql/db
+
+rocketmq/data
+rocketmq/logs
+rocketmq/store
+rocketmq/conf/broker.conf
+
+kafka/docker-compose.yml
