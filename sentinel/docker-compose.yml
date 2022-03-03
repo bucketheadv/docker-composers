@@ -1,0 +1,7 @@
+version: '2'
+# docker run --name sentinel -d -p 8080:8858 -d bladex/sentinel-dashboard
+services:
+  sentinel:
+    image: bladex/sentinel-dashboard
+    ports:
+      - "8858:8858"
