@@ -1,0 +1,107 @@
+version: '3.8'
+
+services:
+  apolloConfigservice-dev:
+    container_name: apolloConfigservice-dev
+    image: apolloconfig/apollo-configservice:2.1.0
+    volumes:
+      - ./logs/config_dev_logs:/opt/logs
+    ports:
+      - "${SERVER_PORT_CONFIG_DEV}:8080"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://${SPRING_DATASOURCE_HOST_PORT}/ApolloConfigDBdev?characterEncoding=utf8
+      - SPRING_DATASOURCE_USERNAME=${SPRING_DATASOURCE_USERNAME}
+      - SPRING_DATASOURCE_PASSWORD=${SPRING_DATASOURCE_PASSWORD}
+    restart: always
+
+  apolloConfigservice-test:
+    container_name: apolloConfigservice-test
+    image: apolloconfig/apollo-configservice:2.1.0
+    volumes:
+      - ./logs/config_test_logs:/opt/logs
+    ports:
+      - "${SERVER_PORT_CONFIG_TEST}:8080"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://${SPRING_DATASOURCE_HOST_PORT}/ApolloConfigDBtest?characterEncoding=utf8
+      - SPRING_DATASOURCE_USERNAME=${SPRING_DATASOURCE_USERNAME}
+      - SPRING_DATASOURCE_PASSWORD=${SPRING_DATASOURCE_PASSWORD}
+    restart: always
+
+  apolloConfigservice-pro:
+    container_name: apolloConfigservice-pro
+    image: apolloconfig/apollo-configservice:2.1.0
+    volumes:
+      - ./logs/config_pro_logs:/opt/logs
+    ports:
+      - "${SERVER_PORT_CONFIG_PRO}:8080"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://${SPRING_DATASOURCE_HOST_PORT}/ApolloConfigDBpro?characterEncoding=utf8
+      - SPRING_DATASOURCE_USERNAME=${SPRING_DATASOURCE_USERNAME}
+      - SPRING_DATASOURCE_PASSWORD=${SPRING_DATASOURCE_PASSWORD}
+    restart: always
+
+  apolloAdminservice-dev:
+    depends_on:
+      - apolloConfigservice-dev
+    container_name: apolloAdminservice-dev
+    image: apolloconfig/apollo-adminservice:2.1.0
+    volumes:
+      - ./logs/admin_dev_logs:/opt/logs
+    ports:
+      - "${SERVER_PORT_ADMIN_DEV}:8090"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://${SPRING_DATASOURCE_HOST_PORT}/ApolloConfigDBdev?characterEncoding=utf8
+      - SPRING_DATASOURCE_USERNAME=${SPRING_DATASOURCE_USERNAME}
+      - SPRING_DATASOURCE_PASSWORD=${SPRING_DATASOURCE_PASSWORD}
+    restart: always
+
+  apolloAdminservice-test:
+    depends_on:
+      - apolloConfigservice-test
+    container_name: apolloAdminservice-test
+    image: apolloconfig/apollo-adminservice:2.1.0
+    volumes:
+      - ./logs/admin_test_logs:/opt/logs
+    ports:
+      - "${SERVER_PORT_ADMIN_TEST}:8090"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://${SPRING_DATASOURCE_HOST_PORT}/ApolloConfigDBtest?characterEncoding=utf8
+      - SPRING_DATASOURCE_USERNAME=${SPRING_DATASOURCE_USERNAME}
+      - SPRING_DATASOURCE_PASSWORD=${SPRING_DATASOURCE_PASSWORD}
+    restart: always
+
+  apolloAdminservice-pro:
+    depends_on:
+      - apolloConfigservice-pro
+    container_name: apolloAdminservice-pro
+    image: apolloconfig/apollo-adminservice:2.1.0
+    volumes:
+      - ./logs/admin_pro_logs:/opt/logs
+    ports:
+      - "${SERVER_PORT_ADMIN_PRO}:8090"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://${SPRING_DATASOURCE_HOST_PORT}/ApolloConfigDBpro?characterEncoding=utf8
+      - SPRING_DATASOURCE_USERNAME=${SPRING_DATASOURCE_USERNAME}
+      - SPRING_DATASOURCE_PASSWORD=${SPRING_DATASOURCE_PASSWORD}
+    restart: always
+
+  apolloPortal:
+    depends_on:
+      - apolloAdminservice-dev
+      - apolloAdminservice-test
+      - apolloAdminservice-pro
+    container_name: apolloPortal
+    image: apolloconfig/apollo-portal:2.1.0
+    volumes:
+      - ./logs/portal_logs:/opt/logs
+    ports:
+      - "${SERVER_PORT_PORTAL}:8070"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://${SPRING_DATASOURCE_HOST_PORT}/ApolloPortalDB?characterEncoding=utf8
+      - SPRING_DATASOURCE_USERNAME=${SPRING_DATASOURCE_USERNAME}
+      - SPRING_DATASOURCE_PASSWORD=${SPRING_DATASOURCE_PASSWORD}
+      - APOLLO_PORTAL_ENVS=dev,test,pro
+      - DEV_META=http://${MY_HOST}:${SERVER_PORT_CONFIG_DEV}
+      - TEST_META=http://${MY_HOST}:${SERVER_PORT_CONFIG_TEST}
+      - PRO_META=http://${MY_HOST}:${SERVER_PORT_CONFIG_PRO}
+    restart: always

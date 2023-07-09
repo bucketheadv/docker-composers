@@ -3,7 +3,7 @@ version: '2.1'
 services:
   apollo-quick-start:
     platform: linux/arm64
-    image: nobodyiam/apollo-quick-start
+    image: nobodyiam/apollo-quick-start:2.1.0
     container_name: apollo-quick-start
     depends_on:
       apollo-db:
