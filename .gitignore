@@ -9,3 +9,4 @@ rocketmq/store
 rocketmq/conf/broker.conf
 
 kafka/docker-compose.yml
+.idea/
