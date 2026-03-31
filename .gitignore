@@ -4,9 +4,12 @@ mysql/db
 logs/
 
 rocketmq/data
+rocketmq/data2
 rocketmq/logs
 rocketmq/store
 rocketmq/conf/broker.conf
 
 kafka/docker-compose.yml
 .idea/
+
+mongodb-data

@@ -1,0 +1,51 @@
+version: '3.8'
+services:
+  namesrv2:
+    image: apache/rocketmq:5.3.2
+    container_name: rmq2-namesrv
+    ports:
+      - "19876:9876"
+    environment:
+      - JAVA_OPT_EXT=-Xms512m -Xmx512m -Xmn256m
+    command: sh mqnamesrv
+    volumes:
+      - ./data2/namesrv/logs:/home/rocketmq/logs
+      - ./data2/namesrv/store:/home/rocketmq/store
+    networks:
+      - rmq2-network
+
+  broker2:
+    image: apache/rocketmq:5.3.2
+    container_name: rmq2-broker
+    ports:
+      - "11909:11909"
+      - "11911:11911"
+      - "11912:11912"
+    environment:
+      - JAVA_OPT_EXT=-Xms512m -Xmx512m -Xmn256m
+      - NAMESRV_ADDR=namesrv2:9876
+    command: sh mqbroker -c /home/rocketmq/rocketmq-5.3.2/conf/broker.conf
+    volumes:
+      - ./data2/broker/logs:/home/rocketmq/logs
+      - ./data2/broker/store:/home/rocketmq/store
+      - ./conf/broker2.conf:/home/rocketmq/rocketmq-5.3.2/conf/broker.conf
+    depends_on:
+      - namesrv2
+    networks:
+      - rmq2-network
+
+  dashboard2:
+    image: apacherocketmq/rocketmq-dashboard:latest
+    container_name: rmq2-dashboard
+    ports:
+      - "28080:8080"
+    environment:
+      - JAVA_OPTS=-Drocketmq.namesrv.addr=namesrv2:9876
+    depends_on:
+      - namesrv2
+    networks:
+      - rmq2-network
+
+networks:
+  rmq2-network:
+    driver: bridge

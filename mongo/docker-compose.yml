@@ -1,8 +1,35 @@
-version: '2'
+# docker-compose.yml 配置文件
+version: '3.8'  # Compose 文件版本，兼容大部分 Docker 版本
 
 services:
-  mongo:
-    image: mongo:4.4
-    restart: always
+  # 服务名称：mongodb（可自定义）
+  mongodb:
+    # 镜像名称：选用官方 MongoDB 镜像，指定版本（推荐固定版本，避免自动更新带来兼容问题）
+    image: mongo:6.0  # 可选 5.0、7.0，按需选择
+    # 容器名称：自定义，方便后续操作容器
+    container_name: my-mongodb
+    # 端口映射：主机端口:容器内端口（容器内默认 27017）
+    # 主机端口可自定义（例如 27018），避免与本地已安装的 MongoDB 冲突
     ports:
       - "27017:27017"
+    # 环境变量配置（可选，用于设置管理员账号密码、认证数据库等）
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=root  # 根管理员用户名
+      - MONGO_INITDB_ROOT_PASSWORD=123456  # 根管理员密码（可自定义）
+      - MONGO_INITDB_DATABASE=admin  # 认证数据库，默认 admin
+    # 数据卷挂载：实现数据持久化（主机目录:容器内数据目录）
+    volumes:
+      # 主机 ./data 目录 <--> 容器 /data/db 目录（MongoDB 数据存储目录）
+      - ./mongodb-data:/data/db
+      # 可选：挂载初始化脚本目录（如需容器启动时自动执行初始化脚本，可新建 ./init-scripts 文件夹并放入 .js 脚本）
+      # - ./init-scripts:/docker-entrypoint-initdb.d
+    # 容器重启策略：异常退出时自动重启（可选，生产环境推荐）
+    restart: always
+    # 网络配置（可选，默认会创建一个桥接网络）
+    networks:
+      - mongodb-network
+
+# 自定义网络（可选，方便多个服务互通）
+networks:
+  mongodb-network:
+    driver: bridge
